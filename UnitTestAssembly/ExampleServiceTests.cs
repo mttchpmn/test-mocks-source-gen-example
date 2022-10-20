@@ -5,5 +5,5 @@ namespace UnitTestAssembly;
 public class ExampleServiceTests
 {
    [GenerateMocks]
-   private ExampleService TestSubject;
+   private ExampleService _testSubject;
 }

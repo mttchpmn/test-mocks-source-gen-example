@@ -18,7 +18,7 @@ namespace GenerationAssembly
             {
                 foreach (var attributeSyntax in attributeListSyntax.Attributes)
                 {
-                    if (attributeSyntax.Name.ToString().Equals("GenerateMocks"))
+                    // if (attributeSyntax.Name.ToString().Equals("GenerateMocks"))
                         FieldDeclarations.Add(fds);
                 }
             }

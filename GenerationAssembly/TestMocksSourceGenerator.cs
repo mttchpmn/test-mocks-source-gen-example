@@ -47,7 +47,7 @@ var testSubject = new {namedTypeSymbol.Name}()
 */
 ", Encoding.UTF8);
 
-                context.AddSource("FieldTest.g.cs", sourceText);
+                context.AddSource("Sandbox.g.cs", sourceText);
             }
 
             // var foo = fields?.Select(x => x.Span.ToString()).ToList();

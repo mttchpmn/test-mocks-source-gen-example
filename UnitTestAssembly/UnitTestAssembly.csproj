@@ -22,8 +22,7 @@
     
     <ItemGroup>
         <ProjectReference Include="..\DomainAssembly\DomainAssembly.csproj" />
-        <ProjectReference Include="..\ExternalAssembly\ExternalAssembly.csproj" />
-        <ProjectReference Include="..\SourceGenerators\SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\GenerationAssembly\GenerationAssembly.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
     <PropertyGroup>
         <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
