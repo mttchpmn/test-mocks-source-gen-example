@@ -28,10 +28,9 @@ namespace GenerationAssembly
                 var fieldType = field.Declaration.Type;
                 var semanticModel = context.Compilation.GetSemanticModel(fieldType.SyntaxTree);
                 var typeInfo = semanticModel.GetTypeInfo(fieldType);
-
-                var assemblyName = typeInfo.Type?.ContainingAssembly.Name;
-                var namespaceName = typeInfo.Type?.ContainingNamespace.Name;
                 var namedTypeSymbol = typeInfo.Type as INamedTypeSymbol;
+
+                var assemblyName = context.Compilation.AssemblyName;
 
                 var constructors = namedTypeSymbol.Constructors;
                 var firstConstructor = constructors.First();
@@ -43,7 +42,7 @@ namespace GenerationAssembly
 
 using DomainAssembly;
 
-namespace UnitTestAssembly;
+namespace {assemblyName};
 
 public partial class ExampleServiceTests
 {{
