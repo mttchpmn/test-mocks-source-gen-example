@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestAssembly", "UnitTestAssembly\UnitTestAssembly.csproj", "{9F085259-2FA3-48AB-8C10-E251A25DAD63}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainAssembly", "DomainAssembly\DomainAssembly.csproj", "{CC4997AE-E207-422C-8C6A-E266CD6A6B19}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenerationAssembly", "GenerationAssembly\GenerationAssembly.csproj", "{F5D81CF3-F472-49E1-87A1-61C91FFAAC15}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9F085259-2FA3-48AB-8C10-E251A25DAD63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F085259-2FA3-48AB-8C10-E251A25DAD63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F085259-2FA3-48AB-8C10-E251A25DAD63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F085259-2FA3-48AB-8C10-E251A25DAD63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC4997AE-E207-422C-8C6A-E266CD6A6B19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC4997AE-E207-422C-8C6A-E266CD6A6B19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC4997AE-E207-422C-8C6A-E266CD6A6B19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC4997AE-E207-422C-8C6A-E266CD6A6B19}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5D81CF3-F472-49E1-87A1-61C91FFAAC15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5D81CF3-F472-49E1-87A1-61C91FFAAC15}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5D81CF3-F472-49E1-87A1-61C91FFAAC15}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5D81CF3-F472-49E1-87A1-61C91FFAAC15}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
