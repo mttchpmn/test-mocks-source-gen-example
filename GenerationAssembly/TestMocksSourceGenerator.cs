@@ -30,13 +30,40 @@ namespace GenerationAssembly
                 var typeInfo = semanticModel.GetTypeInfo(fieldType);
 
                 var assemblyName = typeInfo.Type?.ContainingAssembly.Name;
-                // var namespaceName = typeInfo.Type?.ContainingNamespace.Name;
+                var namespaceName = typeInfo.Type?.ContainingNamespace.Name;
                 var namedTypeSymbol = typeInfo.Type as INamedTypeSymbol;
 
                 var constructors = namedTypeSymbol.Constructors;
                 var firstConstructor = constructors.First();
                 var parameters = firstConstructor.Parameters;
 
+                var firstParam = parameters.First().Type;
+
+                var testClass = SourceText.From($@"
+
+using DomainAssembly;
+
+namespace UnitTestAssembly;
+
+public partial class ExampleServiceTests
+{{
+    private Mock<{firstParam}> _exampleQuery = new();
+
+    public ExampleServiceTests()
+    {{
+        _testSubject = new {namedTypeSymbol.Name}(_exampleQuery.Object)
+    }}
+}}
+", Encoding.UTF8);
+
+                context.AddSource("PartialClass.g.cs", testClass);
+                
+                
+                
+                
+                
+                
+                
                 var sourceText = SourceText.From($@"
 /*
 NAMED TYPE SYMBOL: {namedTypeSymbol.Name}
@@ -44,44 +71,14 @@ CONSTR: {firstConstructor}
 PARAMS: {parameters.First()}
 
 var testSubject = new {namedTypeSymbol.Name}()
+
+
+PARAM TYPE: {firstParam}
 */
 ", Encoding.UTF8);
 
-                context.AddSource("Sandbox.g.cs", sourceText);
+                context.AddSource("Diagnostics.g.cs", sourceText);
             }
-
-            // var foo = fields?.Select(x => x.Span.ToString()).ToList();
-            // var foo = fields?.Select(x => x.ToString());
-//             var foo = fields?.Count.ToString();
-//             var bar = String.Join(",", foo);
-//
-//             var fieldType = fields.First().Declaration.Type;
-//
-//             var semanticModel = context.Compilation.GetSemanticModel(fieldType.SyntaxTree);
-//             var hmm = semanticModel.GetTypeInfo(fieldType);
-//
-//             var typeName = hmm.Type; // HelloSourceGenerator.MyCustomType
-//             var namesp = hmm.Type.ContainingNamespace.Name;
-//
-//             var reflectionType = Type.GetType("HelloSourceGenerator.MyCustomType");
-//
-//             var st = SourceText.From($@"
-// /*
-// Count: {fields.Count}
-// First: {fields.First()}
-//
-// Declaration: {fields.First().Declaration}
-// Type: {fields.First().Declaration.Type}
-// TypeInfo: {hmm.Type}
-// TypeName: {hmm.Type.Name}
-// Namespace: {namesp}
-// ReflectionType: {reflectionType}
-// */", Encoding.UTF8);
-
-
-            // var sourceText = SourceText.From("/*" + fields.Count + fields.First().ToString() + "*/", Encoding.UTF8);
-            //
-            // context.AddSource("FieldTest.g.cs", st);
         }
     }
 }

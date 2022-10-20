@@ -1,9 +1,16 @@
 ﻿using DomainAssembly;
+using Xunit;
 
 namespace UnitTestAssembly;
 
-public class ExampleServiceTests
+public partial class ExampleServiceTests
 {
    [GenerateMocks]
    private ExampleService _testSubject;
+
+   [Fact]
+   public void ExampleTestMethod()
+   {
+      this.GeneratedMethod();
+   }
 }

@@ -1,5 +1,8 @@
 namespace DomainAssembly;
 
-public class ExampleQuery
+public interface IExampleQuery
+{}
+
+public class ExampleQuery : IExampleQuery
 {
 }
