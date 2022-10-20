@@ -21,22 +21,27 @@ namespace GenerationAssembly
             if (fields is null)
                 return;
 
-            // LOOK FOR 'DeclaringSyntaxReferences' 'GetMembers'
-
             foreach (var field in fields)
             {
                 var fieldType = field.Declaration.Type;
                 var semanticModel = context.Compilation.GetSemanticModel(fieldType.SyntaxTree);
                 var typeInfo = semanticModel.GetTypeInfo(fieldType);
                 var namedTypeSymbol = typeInfo.Type as INamedTypeSymbol;
+                
+                var variableDeclaration = semanticModel.GetDeclaredSymbol(field.Declaration.Variables.First()); // TODO - Handle enumeration
+                var containingClass = variableDeclaration.ContainingType.Name;
 
                 var assemblyName = context.Compilation.AssemblyName;
 
                 var constructors = namedTypeSymbol.Constructors;
-                var firstConstructor = constructors.First();
+                var firstConstructor = constructors.First(); // TODO - Handle enumeration
                 var parameters = firstConstructor.Parameters;
 
                 var firstParam = parameters.First().Type;
+                
+                // TODO:
+                // - Using statements
+                // - Variable name of field declaration
 
                 var testClass = SourceText.From($@"
 
@@ -44,7 +49,9 @@ using DomainAssembly;
 
 namespace {assemblyName};
 
-public partial class ExampleServiceTests
+/* Foo: {variableDeclaration} */
+
+public partial class {containingClass}
 {{
     private Mock<{firstParam}> _exampleQuery = new();
 

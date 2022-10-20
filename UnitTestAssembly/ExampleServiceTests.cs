@@ -11,6 +11,6 @@ public partial class ExampleServiceTests
    [Fact]
    public void ExampleTestMethod()
    {
-      _exampleQuery.Setup();
+      // _exampleQuery.Setup();
    }
 }
