@@ -27,10 +27,12 @@ namespace GenerationAssembly
                 var semanticModel = context.Compilation.GetSemanticModel(fieldType.SyntaxTree);
                 var typeInfo = semanticModel.GetTypeInfo(fieldType);
                 var namedTypeSymbol = typeInfo.Type as INamedTypeSymbol;
-                
-                var variableDeclaration = semanticModel.GetDeclaredSymbol(field.Declaration.Variables.First()); // TODO - Handle enumeration
-                var containingClass = variableDeclaration.ContainingType.Name;
 
+                var variableDeclaration =
+                    semanticModel.GetDeclaredSymbol(field.Declaration.Variables.First()); // TODO - Handle enumeration
+
+                var variableName = variableDeclaration.Name;
+                var className = variableDeclaration.ContainingType.Name;
                 var assemblyName = context.Compilation.AssemblyName;
 
                 var constructors = namedTypeSymbol.Constructors;
@@ -38,38 +40,30 @@ namespace GenerationAssembly
                 var parameters = firstConstructor.Parameters;
 
                 var firstParam = parameters.First().Type;
-                
+
                 // TODO:
                 // - Using statements
                 // - Variable name of field declaration
 
-                var testClass = SourceText.From($@"
-
-using DomainAssembly;
+                var testClass = SourceText.From(
+                    $@"using DomainAssembly;
 
 namespace {assemblyName};
 
-/* Foo: {variableDeclaration} */
-
-public partial class {containingClass}
+public partial class {className}
 {{
     private Mock<{firstParam}> _exampleQuery = new();
 
     public ExampleServiceTests()
     {{
-        _testSubject = new {namedTypeSymbol.Name}(_exampleQuery.Object)
+        {variableName} = new {namedTypeSymbol.Name}(_exampleQuery.Object)
     }}
 }}
 ", Encoding.UTF8);
 
                 context.AddSource("PartialClass.g.cs", testClass);
-                
-                
-                
-                
-                
-                
-                
+
+
                 var sourceText = SourceText.From($@"
 /*
 NAMED TYPE SYMBOL: {namedTypeSymbol.Name}
