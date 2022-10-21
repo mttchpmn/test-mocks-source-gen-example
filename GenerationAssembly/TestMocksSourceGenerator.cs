@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
 namespace GenerationAssembly
@@ -23,35 +24,44 @@ namespace GenerationAssembly
 
             foreach (var field in fields)
             {
-                var fieldType = field.Declaration.Type;
-                var semanticModel = context.Compilation.GetSemanticModel(fieldType.SyntaxTree);
-                var typeInfo = semanticModel.GetTypeInfo(fieldType);
-                var namedTypeSymbol = typeInfo.Type as INamedTypeSymbol;
+                GeneratePartialClass(context, field);
+            }
+        }
 
-                var variableDeclaration =
-                    semanticModel.GetDeclaredSymbol(field.Declaration.Variables.First()); // TODO - Handle enumeration
+        private void GeneratePartialClass(GeneratorExecutionContext context, FieldDeclarationSyntax field)
+        {
+            var fieldType = field.Declaration.Type;
+            var semanticModel = context.Compilation.GetSemanticModel(fieldType.SyntaxTree);
+            var typeInfo = semanticModel.GetTypeInfo(fieldType);
+            var namedTypeSymbol = typeInfo.Type as INamedTypeSymbol;
 
-                var variableName = variableDeclaration.Name;
-                var className = variableDeclaration.ContainingType.Name;
-                var assemblyName = context.Compilation.AssemblyName;
+            var variableDeclaration = semanticModel
+                    .GetDeclaredSymbol(field.Declaration.Variables
+                    .First()); // TODO - Will there ever be more than 1?
 
-                var constructors = namedTypeSymbol.Constructors;
-                var firstConstructor = constructors.First(); // TODO - Handle enumeration
-                var parameters = firstConstructor.Parameters;
+            var variableName = variableDeclaration?.Name;
+            var className = variableDeclaration?.ContainingType.Name;
+            var assemblyName = context.Compilation.AssemblyName;
 
-                var firstParam = parameters.First().Type;
+            var constructors = namedTypeSymbol?.Constructors;
+            var firstConstructor = constructors?.First(); // TODO - How do we handle multiple constructors?
+            var parameters = firstConstructor?.Parameters;
 
-                // TODO:
-                // - Using statements
-                // - Variable name of field declaration
+            var firstParam = parameters?.First().Type;
 
-                var testClass = SourceText.From(
-                    $@"using DomainAssembly;
+            // TODO:
+            // - Using statements
+            // - Ensure class is partial
+            // - Throw error / emit diagnostic when too many constructors etc
+
+            var testClass = SourceText.From(
+                $@"{GetUsingStatements()}
 
 namespace {assemblyName};
 
 public partial class {className}
 {{
+    {GetFieldDeclarations()}
     private Mock<{firstParam}> _exampleQuery = new();
 
     public ExampleServiceTests()
@@ -61,24 +71,17 @@ public partial class {className}
 }}
 ", Encoding.UTF8);
 
-                context.AddSource("PartialClass.g.cs", testClass);
+            context.AddSource($"{className}.g.cs", testClass);
+        }
 
+        private string GetFieldDeclarations()
+        {
+            return ""; // TODO
+        }
 
-                var sourceText = SourceText.From($@"
-/*
-NAMED TYPE SYMBOL: {namedTypeSymbol.Name}
-CONSTR: {firstConstructor}
-PARAMS: {parameters.First()}
-
-var testSubject = new {namedTypeSymbol.Name}()
-
-
-PARAM TYPE: {firstParam}
-*/
-", Encoding.UTF8);
-
-                context.AddSource("Diagnostics.g.cs", sourceText);
-            }
+        private string GetUsingStatements()
+        {
+            return "using DomainAssembly;"; // TODO
         }
     }
 }

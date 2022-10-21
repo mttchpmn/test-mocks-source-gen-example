@@ -12,5 +12,6 @@ public partial class ExampleServiceTests
    public void ExampleTestMethod()
    {
       _exampleQuery.Setup();
+      
    }
 }
