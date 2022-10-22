@@ -44,14 +44,15 @@ namespace GenerationAssembly
             var testSubjectTypeSymbol = GetTestSubjectTypeSymbol(semanticModel, field);
             var testSubjectVariableDeclaration = GetTestSubjectVariableDeclaration(semanticModel, field);
 
-            var testSubjectConstructorParameters = GetTestSubjectConstructorParameters(testSubjectTypeSymbol);
+            var testSubjectConstructorParameters = GetTestSubjectConstructorParameters(testSubjectTypeSymbol).ToList();
 
             // Generate text components required for partial class
             var usingStatements = GetUsingStatements();
             var namespaceName = GetNamespaceName(context);
             var className = GetClassName(testSubjectVariableDeclaration);
             var fieldDeclarations = GetFieldDeclarations(testSubjectConstructorParameters);
-            var constructorInstantiation = GetConstructorInstantiation();
+            var constructorInstantiation =
+                GetConstructorInstantiation(testSubjectVariableDeclaration, testSubjectTypeSymbol, testSubjectConstructorParameters);
             var setupMethods = GetSetupMethods();
 
             // Generate partial class
@@ -111,7 +112,8 @@ namespace GenerationAssembly
         private string GetFieldDeclarations(IEnumerable<IParameterSymbol> testSubjectConstructorParameters)
         {
             var fields =
-                testSubjectConstructorParameters.Select(x => $"private Mock<{x.Type.Name}> {GetFieldName(x.Type.Name)} = new();");
+                testSubjectConstructorParameters.Select(x =>
+                    $"private Mock<{x.Type.Name}> {GetFieldName(x.Type.Name)} = new();");
 
             return string.Join("\n", fields);
         }
@@ -119,9 +121,14 @@ namespace GenerationAssembly
         private string GetFieldName(string parameterName)
             => "_" + parameterName[1].ToString().ToLower() + parameterName.Substring(2);
 
-        private string GetConstructorInstantiation()
+        private string GetConstructorInstantiation(ISymbol testSubjectVariableDeclaration,
+            INamedTypeSymbol testSubjectTypeSymbol,
+            IEnumerable<IParameterSymbol> testSubjectConstructorParameters)
         {
-            return "";
+            var parameters = testSubjectConstructorParameters.Select(x => $"{GetFieldName(x.Type.Name)}.Object");
+            var parameterList = string.Join(", ", parameters);
+            
+            return $"{testSubjectVariableDeclaration.Name} = new {testSubjectTypeSymbol.Name}({parameterList});";
         }
 
         private string GetSetupMethods()
