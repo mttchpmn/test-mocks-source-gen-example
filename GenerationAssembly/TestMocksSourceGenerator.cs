@@ -47,10 +47,15 @@ namespace GenerationAssembly
             var firstConstructor = constructors?.First(); // TODO - How do we handle multiple constructors?
             var parameters = firstConstructor?.Parameters;
 
-            var firstParam = parameters?.First().Type;
+            var firstParam = parameters?.First().Type; // DomainAssembly.IExampleQuery
+
+            var mock = firstParam as INamedTypeSymbol;
+            var firstMethod = mock.GetMembers().First(); // DomainAssembly.IExampleQuery.GetDataById
+
 
             // TODO:
             // - Using statements
+            // - Field names (i.e. _exampleQuery)
             // - Ensure class is partial
             // - Throw error / emit diagnostic when too many constructors etc
 
@@ -62,12 +67,18 @@ namespace {assemblyName};
 public partial class {className}
 {{
     {GetFieldDeclarations()}
-    private Mock<{firstParam}> _exampleQuery = new();
+    private Mock<{firstParam.Name}> _exampleQuery = new();
 
     public ExampleServiceTests()
     {{
         {variableName} = new {namedTypeSymbol.Name}(_exampleQuery.Object)
     }}
+
+    public void Setup{firstMethod.Name}()
+    {{
+        // _exampleQuery.Setup(x => x.{firstMethod.Name}().Returns(""brocolli""))
+    }}
+
 }}
 ", Encoding.UTF8);
 
