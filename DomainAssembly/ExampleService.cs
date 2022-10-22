@@ -2,7 +2,7 @@
 
 public class ExampleService
 {
-    public ExampleService(IExampleQuery exampleQuery)
+    public ExampleService(IExampleQuery exampleQuery, IExamplePersistence examplePersistence)
     {
         
     }

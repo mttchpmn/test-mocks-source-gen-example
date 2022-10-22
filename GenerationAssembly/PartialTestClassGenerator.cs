@@ -45,12 +45,12 @@ namespace GenerationAssembly
             var testSubjectVariableDeclaration = GetTestSubjectVariableDeclaration(semanticModel, field);
 
             var testSubjectConstructorParameters = GetTestSubjectConstructorParameters(testSubjectTypeSymbol);
-            
+
             // Generate text components required for partial class
             var usingStatements = GetUsingStatements();
             var namespaceName = GetNamespaceName(context);
             var className = GetClassName(testSubjectVariableDeclaration);
-            var fieldDeclarations = GetFieldDeclarations();
+            var fieldDeclarations = GetFieldDeclarations(testSubjectConstructorParameters);
             var constructorInstantiation = GetConstructorInstantiation();
             var setupMethods = GetSetupMethods();
 
@@ -67,10 +67,11 @@ namespace GenerationAssembly
             context.AddSource($"{className}.generated.cs", sourceText);
         }
 
-        private IEnumerable<IParameterSymbol> GetTestSubjectConstructorParameters(INamedTypeSymbol testSubjectVariableDeclaration)
+        private IEnumerable<IParameterSymbol> GetTestSubjectConstructorParameters(
+            INamedTypeSymbol testSubjectVariableDeclaration)
         {
             var constructors = testSubjectVariableDeclaration.Constructors;
-            
+
             if (constructors.Length > 1)
                 throw new Exception("Encountered more than one constructor for test subject");
 
@@ -81,13 +82,13 @@ namespace GenerationAssembly
             => context.Compilation.GetSemanticModel(field.Declaration.Type.SyntaxTree);
 
         private INamedTypeSymbol GetTestSubjectTypeSymbol(SemanticModel semanticModel, FieldDeclarationSyntax field)
-        => semanticModel.GetTypeInfo(field.Declaration.Type).Type as INamedTypeSymbol;
+            => semanticModel.GetTypeInfo(field.Declaration.Type).Type as INamedTypeSymbol;
 
         private ISymbol GetTestSubjectVariableDeclaration(SemanticModel semanticModel, FieldDeclarationSyntax field)
         {
             if (field.Declaration.Variables.Count > 1)
                 throw new Exception("Encountered more than one variable for field declaration");
-            
+
             var result = semanticModel.GetDeclaredSymbol(field.Declaration.Variables.First());
 
             if (result is null)
@@ -107,10 +108,16 @@ namespace GenerationAssembly
         private string GetClassName(ISymbol testSubjectVariableDeclaration)
             => testSubjectVariableDeclaration.ContainingType.Name;
 
-        private string GetFieldDeclarations()
+        private string GetFieldDeclarations(IEnumerable<IParameterSymbol> testSubjectConstructorParameters)
         {
-            return "";
+            var fields =
+                testSubjectConstructorParameters.Select(x => $"private Mock<{x.Type.Name}> {GetFieldName(x.Type.Name)} = new();");
+
+            return string.Join("\n", fields);
         }
+
+        private string GetFieldName(string parameterName)
+            => "_" + parameterName[1].ToString().ToLower() + parameterName.Substring(2);
 
         private string GetConstructorInstantiation()
         {
