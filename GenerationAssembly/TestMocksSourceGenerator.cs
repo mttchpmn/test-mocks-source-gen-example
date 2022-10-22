@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -61,12 +62,15 @@ namespace GenerationAssembly
 
             var returnType = methodSymbol.ReturnType.Name;
 
+            // throw new Exception("Fuck"); // Does this work?
+
 
             // TODO:
             // - SetupMethods
             // - Using statements
             // - Field names (i.e. _exampleQuery)
             // - Ensure class is partial
+            // - Ensure attribute only used once in file
             // - Throw error / emit diagnostic when too many constructors etc
 
             var testClass = SourceText.From(
@@ -78,7 +82,6 @@ namespace {assemblyName};
 
 public partial class {className}
 {{
-    {GetFieldDeclarations()}
     private Mock<{firstParam.Name}> {firstParamVariableName} = new();
 
     public ExampleServiceTests()
@@ -95,11 +98,6 @@ public partial class {className}
 ", Encoding.UTF8);
 
             context.AddSource($"{className}.g.cs", testClass);
-        }
-
-        private string GetFieldDeclarations()
-        {
-            return ""; // TODO
         }
     }
 }

@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace GenerationAssembly
 {
-    public class GenerateMocksAttributeSyntaxReceiver : ISyntaxReceiver
+    public class TestSubjectSyntaxReceiver : ISyntaxReceiver
     {
         public List<FieldDeclarationSyntax> FieldDeclarations { get; private set; } =
             new List<FieldDeclarationSyntax>();
@@ -18,7 +18,7 @@ namespace GenerationAssembly
             {
                 foreach (var attributeSyntax in attributeListSyntax.Attributes)
                 {
-                    if (attributeSyntax.Name.ToString().Equals("GenerateMocks"))
+                    if (attributeSyntax.Name.ToString().Equals("TestSubject"))
                         FieldDeclarations.Add(fds);
                 }
             }
