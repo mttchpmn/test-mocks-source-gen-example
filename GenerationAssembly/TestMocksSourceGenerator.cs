@@ -41,6 +41,7 @@ namespace GenerationAssembly
 
             var variableName = variableDeclaration?.Name;
             var className = variableDeclaration?.ContainingType.Name;
+            var usingName = variableDeclaration?.ContainingNamespace?.Name;
             var assemblyName = context.Compilation.AssemblyName;
 
             var constructors = namedTypeSymbol?.Constructors;
@@ -49,34 +50,45 @@ namespace GenerationAssembly
 
             var firstParam = parameters?.First().Type; // DomainAssembly.IExampleQuery
 
+            var firstParamVariableName = "_" + firstParam?.Name[1].ToString().ToLower() + firstParam?.Name.Substring(2);
+
             var mock = firstParam as INamedTypeSymbol;
             var firstMethod = mock.GetMembers().First(); // DomainAssembly.IExampleQuery.GetDataById
 
+            var methodSymbol = firstMethod as IMethodSymbol;
+            var firstMethodParameter = methodSymbol.Parameters.First().Name;
+            var parameterType = methodSymbol.Parameters.First().Type.Name;
+
+            var returnType = methodSymbol.ReturnType.Name;
+
 
             // TODO:
+            // - SetupMethods
             // - Using statements
             // - Field names (i.e. _exampleQuery)
             // - Ensure class is partial
             // - Throw error / emit diagnostic when too many constructors etc
 
             var testClass = SourceText.From(
-                $@"{GetUsingStatements()}
+                $@"using System;
+using {usingName};
+using Moq;
 
 namespace {assemblyName};
 
 public partial class {className}
 {{
     {GetFieldDeclarations()}
-    private Mock<{firstParam.Name}> _exampleQuery = new();
+    private Mock<{firstParam.Name}> {firstParamVariableName} = new();
 
     public ExampleServiceTests()
     {{
-        {variableName} = new {namedTypeSymbol.Name}(_exampleQuery.Object)
+        {variableName} = new {namedTypeSymbol.Name}(_exampleQuery.Object);
     }}
 
-    public void Setup{firstMethod.Name}()
+    private void Setup{firstMethod.Name}({returnType} returnValue)
     {{
-        // _exampleQuery.Setup(x => x.{firstMethod.Name}().Returns(""brocolli""))
+        {firstParamVariableName}.Setup(x => x.{firstMethod.Name}(It.IsAny<{parameterType}>()).Returns(returnValue))
     }}
 
 }}
@@ -88,11 +100,6 @@ public partial class {className}
         private string GetFieldDeclarations()
         {
             return ""; // TODO
-        }
-
-        private string GetUsingStatements()
-        {
-            return "using DomainAssembly;"; // TODO
         }
     }
 }
