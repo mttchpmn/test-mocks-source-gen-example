@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -37,10 +39,12 @@ namespace GenerationAssembly
         /// <param name="field"></param>
         private void GeneratePartialTestClass(GeneratorExecutionContext context, FieldDeclarationSyntax field)
         {
-            var fieldType = field.Declaration.Type;
-            var semanticModel = context.Compilation.GetSemanticModel(fieldType.SyntaxTree);
-            
+            var semanticModel = GetSemanticModel(context, field);
+
+            var testSubjectTypeSymbol = GetTestSubjectTypeSymbol(semanticModel, field);
             var testSubjectVariableDeclaration = GetTestSubjectVariableDeclaration(semanticModel, field);
+
+            var testSubjectConstructorParameters = GetTestSubjectConstructorParameters(testSubjectTypeSymbol);
             
             // Generate text components required for partial class
             var usingStatements = GetUsingStatements();
@@ -62,6 +66,22 @@ namespace GenerationAssembly
 
             context.AddSource($"{className}.generated.cs", sourceText);
         }
+
+        private IEnumerable<IParameterSymbol> GetTestSubjectConstructorParameters(INamedTypeSymbol testSubjectVariableDeclaration)
+        {
+            var constructors = testSubjectVariableDeclaration.Constructors;
+            
+            if (constructors.Length > 1)
+                throw new Exception("Encountered more than one constructor for test subject");
+
+            return constructors.First().Parameters.ToList();
+        }
+
+        private SemanticModel GetSemanticModel(GeneratorExecutionContext context, FieldDeclarationSyntax field)
+            => context.Compilation.GetSemanticModel(field.Declaration.Type.SyntaxTree);
+
+        private INamedTypeSymbol GetTestSubjectTypeSymbol(SemanticModel semanticModel, FieldDeclarationSyntax field)
+        => semanticModel.GetTypeInfo(field.Declaration.Type).Type as INamedTypeSymbol;
 
         private ISymbol GetTestSubjectVariableDeclaration(SemanticModel semanticModel, FieldDeclarationSyntax field)
         {
