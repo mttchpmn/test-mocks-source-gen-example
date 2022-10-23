@@ -47,8 +47,8 @@ namespace GenerationAssembly
             var testSubjectConstructorParameters = GetTestSubjectConstructorParameters(testSubjectTypeSymbol).ToList();
 
             // Generate text components required for partial class
-            var usingStatements = GetUsingStatements();
             var namespaceName = GetNamespaceName(context);
+            var usingStatements = GetUsingStatements(testSubjectConstructorParameters);
             var className = GetClassName(testSubjectVariableDeclaration);
             var fieldDeclarations = GetFieldDeclarations(testSubjectConstructorParameters);
             var constructorInstantiation =
@@ -98,10 +98,18 @@ namespace GenerationAssembly
             return result;
         }
 
-        private string GetUsingStatements()
+        private string GetUsingStatements(List<IParameterSymbol> testSubjectConstructorParameters)
         {
-            // TODO
-            return "";
+            var assemblies = testSubjectConstructorParameters.Select(GetAssemblyForParameter).Distinct();
+            
+            return string.Join("\n", assemblies);
+        }
+
+        private string GetAssemblyForParameter(IParameterSymbol parameter)
+        {
+            var assembly = parameter.ContainingAssembly;
+                
+            return $"using {assembly.Name};";
         }
 
         private string GetNamespaceName(GeneratorExecutionContext context)
@@ -136,7 +144,7 @@ namespace GenerationAssembly
         {
             var setupMethods = testSubjectConstructorParameters.Select(GenerateSetupMethodsForParameter);
 
-            return string.Join("\n\t", setupMethods);
+            return string.Join("\n\n\t", setupMethods);
         }
 
         private string GenerateSetupMethodsForParameter(IParameterSymbol parameter)
@@ -146,7 +154,7 @@ namespace GenerationAssembly
 
             var setupMethods = availableMethods?.Where(x => !x.ReturnType.Name.Equals("Void")).Select(x => GenerateSetupMethod(parameter, x));
             
-            return string.Join("\n\t", setupMethods);
+            return string.Join("\n\n\t", setupMethods);
         }
 
         private string GenerateSetupMethod(IParameterSymbol parameter, IMethodSymbol method)

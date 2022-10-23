@@ -66,12 +66,9 @@ namespace GenerationAssembly
 
 
             // TODO:
-            // - SetupMethods
             // - Using statements
-            // - Field names (i.e. _exampleQuery)
             // - Ensure class is partial
             // - Ensure attribute only used once in file
-            // - Throw error / emit diagnostic when too many constructors etc
 
             var testClass = SourceText.From(
                 $@"using System;
