@@ -144,16 +144,19 @@ namespace GenerationAssembly
             var param = parameter.Type as INamedTypeSymbol;
             var availableMethods = param?.GetMembers().Select(x => x as IMethodSymbol);
 
-            var setupMethods = availableMethods?.Where(x => !x.ReturnType.Name.Equals("Void")).Select(GenerateSetupMethod);
+            var setupMethods = availableMethods?.Where(x => !x.ReturnType.Name.Equals("Void")).Select(x => GenerateSetupMethod(parameter, x));
             
             return string.Join("\n\t", setupMethods);
         }
 
-        private string GenerateSetupMethod(IMethodSymbol method)
+        private string GenerateSetupMethod(IParameterSymbol parameter, IMethodSymbol method)
         {
+            var methodParameters = method.Parameters.Select(x => $"It.IsAny<{x.Type.Name}>()");
+            var parametersText = string.Join(", ", methodParameters);
+            
             return $@"private void Setup{method.Name}({method.ReturnType.Name} returnValue)
     {{
-        
+       {GetFieldName(parameter.Type.Name)}.Setup(x => x.{method.Name}({parametersText}).Returns(returnValue)); 
     }}";
         }
 
