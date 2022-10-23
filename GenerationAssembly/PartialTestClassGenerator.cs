@@ -53,7 +53,7 @@ namespace GenerationAssembly
             var fieldDeclarations = GetFieldDeclarations(testSubjectConstructorParameters);
             var constructorInstantiation =
                 GetConstructorInstantiation(testSubjectVariableDeclaration, testSubjectTypeSymbol, testSubjectConstructorParameters);
-            var setupMethods = GetSetupMethods();
+            var setupMethods = GetSetupMethods(testSubjectConstructorParameters);
 
             // Generate partial class
             var sourceText = GenerateSourceText(
@@ -132,9 +132,29 @@ namespace GenerationAssembly
             return $"{testSubjectVariableDeclaration.Name} = new {testSubjectTypeSymbol.Name}({parameterList});";
         }
 
-        private string GetSetupMethods()
+        private string GetSetupMethods(IEnumerable<IParameterSymbol> testSubjectConstructorParameters)
         {
-            return "";
+            var setupMethods = testSubjectConstructorParameters.Select(GenerateSetupMethodsForParameter);
+
+            return string.Join("\n\t", setupMethods);
+        }
+
+        private string GenerateSetupMethodsForParameter(IParameterSymbol parameter)
+        {
+            var param = parameter.Type as INamedTypeSymbol;
+            var availableMethods = param?.GetMembers().Select(x => x as IMethodSymbol);
+
+            var setupMethods = availableMethods?.Where(x => !x.ReturnType.Name.Equals("Void")).Select(GenerateSetupMethod);
+            
+            return string.Join("\n\t", setupMethods);
+        }
+
+        private string GenerateSetupMethod(IMethodSymbol method)
+        {
+            return $@"private void Setup{method.Name}({method.ReturnType.Name} returnValue)
+    {{
+        
+    }}";
         }
 
         private SourceText GenerateSourceText(
