@@ -164,7 +164,7 @@ namespace GenerationAssembly
             
             return $@"private void Setup{method.Name}({method.ReturnType.Name} returnValue)
     {{
-       {GetFieldName(parameter.Type.Name)}.Setup(x => x.{method.Name}({parametersText}).Returns(returnValue)); 
+       {GetFieldName(parameter.Type.Name)}.Setup(x => x.{method.Name}({parametersText})).Returns(returnValue); 
     }}";
         }
 
