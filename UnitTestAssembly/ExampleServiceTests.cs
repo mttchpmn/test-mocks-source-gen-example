@@ -12,6 +12,5 @@ public partial class ExampleServiceTests
    [Fact]
    public void ExampleTestMethod()
    {
-      SetupDeleteDataForId(true);
    }
 }
